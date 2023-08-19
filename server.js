@@ -24,6 +24,8 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 // JSON body parser for the body object.
 app.use(express.json());
+// URL encoded parser for the body object.
+app.use(express.urlencoded({ extended: true }));
 
 
 app.use(routes);
