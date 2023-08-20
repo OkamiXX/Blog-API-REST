@@ -130,7 +130,6 @@ const deleteArticle = async (req, res) => {
         });
 
     } catch (err) {
-        console.log(err);
         return res.status(400).json({
             status: 'ERROR',
             message: 'ERROR: Error deleting article'
@@ -212,7 +211,6 @@ const uploadImage = async (req, res) => {
         try {
             // Find and update the article with the new img.
             let article = await Articles.findOneAndUpdate({ _id: req.params.id }, { img: req.file.filename }, { new: true })
-            console.log(req.file.filename);
             // Return the updated article.
             return res.status(200).json({
                 status: 'SUCCESS',
@@ -222,7 +220,6 @@ const uploadImage = async (req, res) => {
             })
 
         } catch (err) {
-            console.log(err);
             return res.status(400).json({
                 status: 'ERROR',
                 message: 'ERROR: Error adding img file to article'
@@ -238,7 +235,6 @@ const getImage = async (req, res) => {
     let file = req.params.img;
     // Get the path to the file.
     let file_path = `./assets/img/uploads/${file}`;
-    console.log(file_path);
 
     // Check if the file exists.
     fs.stat(file_path, (err, exists) => {
@@ -258,6 +254,43 @@ const getImage = async (req, res) => {
     });
 };
 
+// -------------------------------------------------
+// Search articles
+const searchArticles = async (req, res) => {
+    // Get the search term from the URL.
+    let search = req.params.search;
+
+    try {
+        // Search the articles by title or content.
+        let find = await Articles.find({
+            '$or': [
+                { 'title': { '$regex': search, '$options': 'i' } },
+                { 'content': { '$regex': search, '$options': 'i' } }
+            ]
+        })
+
+        // Sort the articles by date. Order: descending.
+        .sort({ date: -1 })
+        
+        // Return the articles.
+        return res.status(200).json({
+            status: 'SUCCESS',
+            find
+        })
+
+
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json({
+            status: 'ERROR',
+            message: 'ERROR: Error searching articles || No articles found'
+        })
+    }
+
+
+
+}
+
 
 
 module.exports = {
@@ -267,5 +300,6 @@ module.exports = {
     deleteArticle,
     updateArticle,
     uploadImage,
-    getImage
+    getImage,
+    searchArticles
 };
